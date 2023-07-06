@@ -8,6 +8,8 @@ sqlalchemy = "*"
 openai = "*"
 pandas = "*"
 python-dotenv = "*"
+streamlit = "*"
+streamlit-chat = "*"
 
 [dev-packages]
 

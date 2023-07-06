@@ -45,7 +45,11 @@ pipenv shell
 ```
 pipenv install -r requirements.txt
 ```
-6. run `main.py `
+6. write down your OPENAI_API_KEY to `.env` file in the root dir
+```
+OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+```
+7. run `main.py `
 ```
 python main.py
 ```

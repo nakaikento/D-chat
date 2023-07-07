@@ -1,7 +1,7 @@
 # D-chat
 
 ## Demo
-![D-chat_demo_img](https://github.com/nakaikento/D-chat/assets/27417352/0c09f833-340a-4f42-9a44-212544391904)
+![D-chat_demo_img](https://github.com/nakaikento/D-chat/assets/27417352/14f4d60a-381c-454c-b622-9d9ae759464a)
 
 ## SetUp
 1. install pyenv

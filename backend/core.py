@@ -7,34 +7,35 @@ from dotenv import load_dotenv
 import pandas as pd
 import openai
 
-import db_utils
-import openai_utils
+# import backend.db_utils
+from backend.db_utils import dataframe_to_database, handle_response, execute_query
+# import backend.openai_utils
+from backend.openai_utils import create_table_definition_prompt, combine_prompts, send_to_openai
 
 load_dotenv()
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 openai.api_key = os.environ["OPENAI_API_KEY"]
 
-if __name__ == "__main__":
+def run_llm(user_input:str):
     logging.info("Loading data...")
-    df = pd.read_csv("data/sales_data_sample.csv")
+    df = pd.read_csv("backend/data/sales_data_sample.csv")
     logging.info(f"Data Format: {df.shape}")
 
     logging.info("Converting to database...")
-    database = db_utils.dataframe_to_database(df, "Sales")
+    database = dataframe_to_database(df, "Sales")
     
-    fixed_sql_prompt = openai_utils.create_table_definition_prompt(df, "Sales")
+    fixed_sql_prompt = create_table_definition_prompt(df, "Sales")
     logging.info(f"Fixed SQL Prompt: {fixed_sql_prompt}")
 
     logging.info("Waiting for user input...")
-    user_input = openai_utils.user_query_input()
-    final_prompt = openai_utils.combine_prompts(fixed_sql_prompt, user_input)
+    # user_input = openai_utils.user_query_input()
+    final_prompt = combine_prompts(fixed_sql_prompt, user_input)
     logging.info(f"Final Prompt: {final_prompt}")
 
     logging.info("Sending to OpenAI...")
-    response = openai_utils.send_to_openai(final_prompt)
-    proposed_query = response["choices"][0]["text"]
-    proposed_query_postprocessed = db_utils.handle_response(response)
+    response = send_to_openai(final_prompt)
+    proposed_query_postprocessed = handle_response(response)
     logging.info(f"Response obtained. Proposed sql query: {proposed_query_postprocessed}")
-    result = db_utils.execute_query(database, proposed_query_postprocessed)
+    result = execute_query(database, proposed_query_postprocessed)
     logging.info(f"Result: {result}")
-    print(result)
+    return proposed_query_postprocessed, result

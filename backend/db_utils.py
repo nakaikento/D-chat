@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy import text
+import pandas as pd
 
 def dataframe_to_database(df, table_name):
     """Convert a pandas dataframe to a database.
@@ -35,8 +36,13 @@ def execute_query(engine, query):
         query (string): SQL query
 
     Returns:
-        list: List of tuples containing the result of the query
+        df: pandas.DataFrame containing the result of the query
     """
-    with engine.connect() as conn:
-        result = conn.execute(text(query))
-        return result.fetchall()
+    # with engine.connect() as conn:
+    #     result = conn.execute(text(query))
+    #     return result.fetchall()
+    df = pd.read_sql_query(
+        sql = text(query),
+        con = engine
+    )
+    return df

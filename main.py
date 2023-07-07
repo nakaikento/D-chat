@@ -14,4 +14,4 @@ if user_input:
             user_input=user_input
         )
         message(query_in_sql)
-        message(str(result))
+        message(result)

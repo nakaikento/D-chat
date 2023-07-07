@@ -9,6 +9,11 @@ user_input = st.text_input("Query in NLP", placeholder="Enter your query here...
 )
 
 if user_input:
+    message(
+            user_input,
+            is_user=True,
+        )
+
     with st.spinner("Generating response..."):
         query_in_sql, result = run_llm(
             user_input=user_input

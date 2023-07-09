@@ -2,21 +2,15 @@
 
 import os
 import logging
-
-from dotenv import load_dotenv
 import pandas as pd
 import openai
-
-# import backend.db_utils
 from backend.db_utils import dataframe_to_database, handle_response, execute_query
-# import backend.openai_utils
 from backend.openai_utils import create_table_definition_prompt, combine_prompts, send_to_openai
 
-load_dotenv()
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
-openai.api_key = os.environ["OPENAI_API_KEY"]
 
 def run_llm(user_input:str):
+    openai.api_key = os.environ["OPENAI_API_KEY"]
     logging.info("Loading data...")
     df = pd.read_csv("backend/data/sales_data_sample.csv")
     logging.info(f"Data Format: {df.shape}")

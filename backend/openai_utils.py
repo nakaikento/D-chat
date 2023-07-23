@@ -49,9 +49,9 @@ def send_to_openai(prompt):
     Returns:
         string: Response from OpenAI
     """
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{'role': 'user', 'content': prompt}],
         temperature=0,
         max_tokens=150,
         top_p=1.0,

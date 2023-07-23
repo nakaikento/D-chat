@@ -23,7 +23,7 @@ TABLE_NAME = "Investors"
 # SETTING PAGE CONFIG TO WIDE MODE AND ADDING A TITLE AND FAVICON
 st.set_page_config(layout="wide", page_title="D-Chat", page_icon="chart_with_upwards_trend")
 st.header("D-Chat")
-col1, col2 = st.columns([0.4,0.6], gap="large")
+col1, col2 = st.columns([0.5,0.5], gap="large")
 col1.subheader("Chat")
 col2.subheader("Data View")
 

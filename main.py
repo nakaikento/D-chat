@@ -6,7 +6,6 @@ from backend.db_utils import dataframe_to_database, execute_query
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationBufferMemory
-from langchain.schema import messages_to_dict
 from langchain.prompts.chat import (
       ChatPromptTemplate,
       MessagesPlaceholder,
@@ -15,7 +14,6 @@ from langchain.prompts.chat import (
 )
 
 import pandas as pd
-import json
 import os
 import streamlit as st
 from streamlit_chat import message
@@ -75,17 +73,12 @@ def load_conversation():
       
       return conversation
 
-# 最後に、実際に会話した内容が memory オブジェクトに保持されていることを確認します
-# history = memory.chat_memory
-# messages = json.dumps(messages_to_dict(history.messages), indent=2, ensure_ascii=False)
-# print(f"memory: {messages}")
-
 def main():
 
       # APIキー管理
       if 'openai_api_key' not in st.session_state:
             with col1:
-                  openai_api_key = st.text_input(
+                  openai_api_key = st.sidebar.text_input(
                         'Please enter your OpenAI API key or [get one here](https://platform.openai.com/account/api-keys)', value="", placeholder="Enter the OpenAI API key which begins with sk-"
                   )
             if openai_api_key:

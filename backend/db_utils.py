@@ -23,9 +23,8 @@ def handle_response(response):
     Returns:
         string: Proposed SQL query
     """
-    query = response["choices"][0]["text"]
-    if query.startswith(" "):
-        query = "Select"+ query
+    query = response["choices"][0]["message"]["content"]
+    query = "SELECT "+ query
     return query
 
 def execute_query(engine, query):

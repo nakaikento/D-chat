@@ -20,9 +20,9 @@ pipenv --python 3.11
 ```
 pipenv shell
 ```
-5. install python package list
+5. install python package list refering to the Pipfile
 ```
-pipenv install -r requirements.txt
+pipenv install
 ```
 6. run `main.py `
 ```

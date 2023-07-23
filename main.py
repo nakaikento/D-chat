@@ -2,17 +2,16 @@ import langchain
 langchain.verbose = False
 from langchain.schema import prompt
 from backend.openai_utils import create_table_definition_prompt
-from backend.db_utils import dataframe_to_database, execute_query
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
+from backend.db_utils import dataframe_to_database, execute_query, load_data
 from langchain.prompts.chat import (
       ChatPromptTemplate,
       MessagesPlaceholder,
       SystemMessagePromptTemplate,
       HumanMessagePromptTemplate
 )
-
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
 import pandas as pd
 import os
 import streamlit as st
@@ -26,29 +25,6 @@ st.header("D-Chat")
 col1, col2 = st.columns([0.5,0.5], gap="large")
 col1.subheader("Chat")
 col2.subheader("Data View")
-
-# データをCSVファイルから読み込み
-@st.cache_resource
-def load_data():
-      FILE_PATH = "backend/data/demo_dummy_data.csv"
-      df = pd.read_csv(FILE_PATH)
-      return df
-
-# データ読み込み
-df = load_data()
-
-# SQLite DBにデータを挿入
-database = dataframe_to_database(df, TABLE_NAME) 
-
-# システムメッセージ用のテンプレート
-template = create_table_definition_prompt(df, TABLE_NAME)
-
-# プロンプトテンプレート
-prompt = ChatPromptTemplate.from_messages([
-      SystemMessagePromptTemplate.from_template(template),
-      MessagesPlaceholder(variable_name="history"),
-      HumanMessagePromptTemplate.from_template("### A query to answer: {input}\nSELECT")
-])
 
 @st.cache_resource
 def load_conversation():
@@ -72,6 +48,22 @@ def load_conversation():
       conversation = ConversationChain(llm=chat, memory=memory, prompt=prompt)
       
       return conversation
+
+# データ読み込み
+df = load_data()
+
+# SQLite DBにデータを挿入
+database = dataframe_to_database(df, TABLE_NAME) 
+
+# システムメッセージ用のテンプレート
+template = create_table_definition_prompt(df, TABLE_NAME)
+
+# プロンプトテンプレート
+prompt = ChatPromptTemplate.from_messages([
+      SystemMessagePromptTemplate.from_template(template),
+      MessagesPlaceholder(variable_name="history"),
+      HumanMessagePromptTemplate.from_template("### A query to answer: {input}\nSELECT")
+])
 
 def main():
 

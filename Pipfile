@@ -9,6 +9,7 @@ openai = "*"
 pandas = "*"
 streamlit = "*"
 streamlit-chat = "*"
+langchain = "*"
 
 [dev-packages]
 

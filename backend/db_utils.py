@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy import text
 import pandas as pd
+import streamlit as st
 
 def dataframe_to_database(df, table_name):
     """Convert a pandas dataframe to a database.
@@ -45,3 +46,10 @@ def execute_query(engine, query):
         con = engine
     )
     return df
+
+# データをCSVファイルから読み込み
+@st.cache_resource
+def load_data():
+      FILE_PATH = "backend/data/demo_dummy_data.csv"
+      df = pd.read_csv(FILE_PATH)
+      return df

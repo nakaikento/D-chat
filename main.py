@@ -2,17 +2,16 @@ import langchain
 langchain.verbose = False
 from langchain.schema import prompt
 from backend.openai_utils import create_table_definition_prompt
-from backend.db_utils import dataframe_to_database, execute_query
-from langchain.chat_models import ChatOpenAI
-from langchain.chains import ConversationChain
-from langchain.memory import ConversationBufferMemory
+from backend.db_utils import dataframe_to_database, execute_query, load_data
 from langchain.prompts.chat import (
       ChatPromptTemplate,
       MessagesPlaceholder,
       SystemMessagePromptTemplate,
       HumanMessagePromptTemplate
 )
-
+from langchain.chat_models import ChatOpenAI
+from langchain.chains import ConversationChain
+from langchain.memory import ConversationBufferMemory
 import pandas as pd
 import os
 import streamlit as st
@@ -22,36 +21,17 @@ TABLE_NAME = "Investors"
 
 # SETTING PAGE CONFIG TO WIDE MODE AND ADDING A TITLE AND FAVICON
 st.set_page_config(layout="wide", page_title="D-Chat", page_icon="chart_with_upwards_trend")
+# ヘッダー
 st.header("D-Chat")
+# サイドバーヘッダー
+st.sidebar.header("Settings")
+# bodyのレイアウト
 col1, col2 = st.columns([0.5,0.5], gap="large")
 col1.subheader("Chat")
 col2.subheader("Data View")
 
-# データをCSVファイルから読み込み
 @st.cache_resource
-def load_data():
-      FILE_PATH = "backend/data/demo_dummy_data.csv"
-      df = pd.read_csv(FILE_PATH)
-      return df
-
-# データ読み込み
-df = load_data()
-
-# SQLite DBにデータを挿入
-database = dataframe_to_database(df, TABLE_NAME) 
-
-# システムメッセージ用のテンプレート
-template = create_table_definition_prompt(df, TABLE_NAME)
-
-# プロンプトテンプレート
-prompt = ChatPromptTemplate.from_messages([
-      SystemMessagePromptTemplate.from_template(template),
-      MessagesPlaceholder(variable_name="history"),
-      HumanMessagePromptTemplate.from_template("### A query to answer: {input}\nSELECT")
-])
-
-@st.cache_resource
-def load_conversation():
+def load_conversation(template: str):
       # 言語モデルのラッパー
       chat = ChatOpenAI(
             model="gpt-3.5-turbo",
@@ -69,9 +49,27 @@ def load_conversation():
       memory = ConversationBufferMemory(return_messages=True)
 
       # 会話用のチェーン
-      conversation = ConversationChain(llm=chat, memory=memory, prompt=prompt)
+      conversation = ConversationChain(llm=chat, memory=memory, prompt=load_prompt(template))
       
       return conversation
+
+@st.cache_resource
+def load_prompt(template: str):
+
+      # プロンプトテンプレート
+      prompt = ChatPromptTemplate.from_messages([
+            SystemMessagePromptTemplate.from_template(template),
+            MessagesPlaceholder(variable_name="history"),
+            HumanMessagePromptTemplate.from_template("### A query to answer: {input}\nSELECT")
+      ])
+
+      return prompt
+
+# データ読み込み
+df = load_data()
+
+# SQLite DBにデータを挿入
+database = dataframe_to_database(df, TABLE_NAME) 
 
 def main():
 
@@ -92,8 +90,26 @@ def main():
       else:
             os.environ["OPENAI_API_KEY"] = st.session_state.openai_api_key
 
-      # 会話モデルの初期化
-      conversation = load_conversation()
+      # 固定テンプレート
+      initial_template = create_table_definition_prompt(df, TABLE_NAME)
+
+      with st.sidebar.form("template_setting_form", clear_on_submit=False):
+            updated_tamplate = st.text_area(
+                  'Fixed Prompt',
+                  placeholder='Enther the fixed prompt here',
+                  value = initial_template
+            )
+            submitted = st.form_submit_button("Apply")
+      if submitted:
+            st.session_state['template'] =  updated_tamplate
+
+      if 'template' not in st.session_state:
+            template = initial_template
+      else:
+            template = st.session_state.template
+      
+      # 会話モデル
+      conversation = load_conversation(template)
 
       # Initialize the session state for generated responses and past inputs
       if 'generated' not in st.session_state:
